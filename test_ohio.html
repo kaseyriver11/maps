@@ -8,11 +8,11 @@ path {
         stroke-width: 1.5;
         }
 
-
 path:hover {
-        fill:orange;
+        fill:red;
         cursor:pointer;
       }
+
 
 #state-borders {
   fill: white;
@@ -23,6 +23,17 @@ path:hover {
   pointer-events: none;
 }
 
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 12px;
+  padding: 8px;
+  margin-top: -20px;
+  font: 10px sans-serif;
+  background: #fff;
+  pointer-events: none;
+}
 
 </style>
 <body> 
@@ -34,7 +45,7 @@ var width = 960,
     height = 500,
     centered;
 
-var projection = d3.geoAlbers();
+var projection = d3.geoAlbers().rotate([85, 0, 0]);
 
 var path = d3.geoPath()
     .projection(projection);
@@ -42,14 +53,13 @@ var path = d3.geoPath()
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
-
-d3.json("https://unpkg.com/us-atlas@1/us/10m.json",function(json){
- 
-	var states = topojson.feature(json, json.objects.states),
-        state = states.features.filter(function(d) { return d.id === "34"; })[0];
 	
-	console.log(state);
-	console.log(d3.geoBounds(state));
+var color = d3.scaleOrdinal(d3.schemeCategory10).domain(d3.range(0, 9));
+
+// Soom in to the right state
+d3.json("https://raw.githubusercontent.com/kaseyriver11/maps/master/us.json",function(json){
+	var states = topojson.feature(json, json.objects.states),
+        state = states.features.filter(function(d) { return d.id === 39; })[0];
 	
 	projection
 		.scale(1)
@@ -62,19 +72,50 @@ d3.json("https://unpkg.com/us-atlas@1/us/10m.json",function(json){
 	projection
 		.scale(s)
 		.translate(t);
-		
-  svg.append("g")
-      .attr("class", "states")
-    .selectAll("path")
-    .data(topojson.feature(json, json.objects.states).features)
-    .enter().append("path")
-      .attr("d", path);
 
-  svg.append("path")
-      .attr("class", "state-borders")
-      .attr("d", path(topojson.mesh(json, json.objects.states, function(a, b) { return a !== b; })));
-       
     });
+	
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("display", "none");
+
+function mouseover() {
+  div.style("display", "inline");
+}
+
+function mousemove() {
+  div
+      .text(d3.event.pageX + ", " + d3.event.pageY)
+      .style("left", (d3.event.pageX - 34) + "px")
+      .style("top", (d3.event.pageY - 12) + "px");
+};
+	
+// https://raw.githubusercontent.com/deldersveld/topojson/master/countries/united-states/us-albers-counties.json
+d3.json("https://raw.githubusercontent.com/kaseyriver11/maps/master/us3.json",function(json){
+	var hi = topojson.feature(json, json.objects.collection).features.filter(function(d) { return d.properties.state_fips == 39; });
+	svg.selectAll("path")
+		.data(hi)
+		.enter()
+		.append("path")
+		.attr("d", path)
+		.attr("name", function(d) { return d.properties.name})
+		.attr("color", function(d) { return color(d.properties.Value)})
+		.style("stroke","white")
+		.style("fill", function(d) { return color(d.properties.Value)})
+		.on("mouseover", function(d) {
+			d3.select(this).attr("r", 10).style("opacity", .3)
+			div.style("display", "inline")})
+		.on("mouseout", function(d) {
+			d3.select(this).attr("r", 10).style("opacity", 1)})
+	.on("mousemove", function(d) {
+		div
+		 .attr('id', 'fix')
+		 .text("Some Text")
+		  .style("left", (d3.event.pageX - 34) + "px")
+		  .style("top", (d3.event.pageY - 12) + "px");
+	})
+});
+
 </script>
 
 
