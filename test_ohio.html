@@ -275,7 +275,7 @@ var svg = d3.select("#map_div").append("svg")
 
 
 // ----- Step 2: Zoom in to the right place
-d3.json("https://raw.githubusercontent.com/kaseyriver11/maps/master/us.json",function(json){
+d3.json("https://raw.githubusercontent.com/kaseyriver11/maps/master/data/us.json",function(json){
 	ht=500
   	var states = topojson.feature(json, json.objects.states)
   	// 39 is the fips code for OHIO
