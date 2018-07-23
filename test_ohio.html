@@ -1,19 +1,34 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+
 <style>
-
 path {
-        fill: lightgray;
-        stroke: #000000;
-        stroke-width: 1.5;
-        }
-
+  stroke-width: 1.25;
+}
 path:hover {
-        fill:red;
-        cursor:pointer;
-      }
+  cursor:pointer;
+}
+body {
+	background-color: #F8F8F8;
+}
+hr { 
+    display: block;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-left: 30%;
+    margin-right: 30%;
+    border-style: inset;
+    border-width: 1px;
+} 
 
-
+#left_text {
+  font: 12 "Helvetica";
+  text-align: center;
+}
+#right_text {
+  font: 12 "Helvetica";
+  text-align: center;
+}
 #state-borders {
   fill: white;
   stroke: #000000;
@@ -22,101 +37,737 @@ path:hover {
   stroke-linecap: round;
   pointer-events: none;
 }
+#inds{
+  position:relative;
+  top:65px;
+  left:525px;
+}
 
 .tooltip {
   position: absolute;
-  text-align: center;
-  width: 60px;
-  height: 12px;
-  padding: 8px;
-  margin-top: -20px;
-  font: 10px sans-serif;
-  background: #fff;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  background-color: #F8F8F8;
+  opacity: .91;
   pointer-events: none;
+  border-radius: 4px;
+}
+.tooltip.hidden {
+  display: none;
+}
+.tooltip p {
+  margin: 0;
+  font: 12 "Helvetica";
+  font-size: 14px;
+  line-height: 20px;
 }
 
+.centered_div {
+	position: relative;
+	left: 50%;
+	margin: 20px 0 0 -450px;
+	width: 900px;
+}
+
+.box {
+	background: white; 
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.1);
+    border-radius: 4px;
+    border: 2px solid #999;
+}
+.box.space_bottom {
+    padding-bottom: 5px;
+}
+.box.hidden {
+  display: none;
+}
+
+.legend {
+  font: 12px Helvetica;
+  box-shadow: 2px 2px 1px #888;
+}
+
+.topic_title {
+	font-family: Helvetica;
+    font-size: 40px;
+	text-align: center;
+    font-weight: 600;
+}
+.topic_description {
+	font-family: Helvetica;
+    font-size: 24px;
+	text-align: center;
+    font-weight: 400;
+}
+.large-8-centered {
+    margin-left: auto;
+    margin-right: auto;
+    width: 66.67%;
+}
+
+.button {
+	background-color: #bed3ea;
+    padding: 12px 0px;
+    text-align: center;
+    display: inline-block;
+    font-family: Helvetica;
+    font-size: 16px;
+    cursor: pointer;
+    outline-offset: 3px;
+}
+.top_button {
+    color: white;
+    width: 140px;
+}
+.reset_button {
+	position: relative;
+    color: white;
+    padding: 2px 0px;
+    width: 70px;
+}
+.datatable_button {
+    color: white;
+    padding: 4px 0px;
+    width: 40px;
+    font-size: 10px;
+}
+
+.center_button_div {
+	display: flex;
+  	justify-content: center;
+}
+.center_button_div.hidden {
+  	display: none;
+}
+.horizontal_divider{
+    width:5px;
+    height:auto;
+    display:inline-block;
+}
+
+.dataTables_wrapper {
+    font-family: Helvetica;
+    font-size: 14px;
+    margin: 0 auto;
+    width: 80%;
+}
+
+.box_title {
+	margin-left: 10px;
+	line-height: 2em;
+	font-family: Helvetica;
+    font-size: 20px;
+    font-weight: 400;
+	display: inline
+}
+.hidden {
+  display: none;
+}
 </style>
+
 <body> 
-  <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
-  <script src="https://d3js.org/topojson.v2.min.js"></script>
-<script>
+	<!-- D3 -->
+	<script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+	<script src="https://d3js.org/topojson.v2.min.js"></script>
+	<!-- Datatables -->
+	<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+		<!-- Datatables Scroller -->
+		<script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
+		<!-- Datatables Buttons -->
+		<script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+		<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+		<!-- Datatables CSS -->
+		<link rel="stylesheet" type="text/css" href=https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css>
+	
+	<!-- Icons -->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" integrity="sha384-O8whS3fhG2OnA5Kas0Y9l3cfpmYjapjI0E4theH4iuMD+pLhbf6JI0jIMfYcK3yZ" crossorigin="anonymous">
 
-var width = 960,
-    height = 500,
-    centered;
 
-var projection = d3.geoAlbers().rotate([85, 0, 0]);
+	<!-- The Title Information -->
+	<div id='title_info' class='centered_div'>
+		<div class='column'>
+			<h1 class='topic_title'> The Main Title Will Go Here. Filler Title. </h1>
+		</div>
+
+		<div class='column large-8-centered'>
+			<h3 class='topic_description'> The main description will go here. Placing filler text to show what potential text might look like. </h3>
+		</div>
+
+		<div id='two_buttons' class='center_button_div'>
+			<button class="box button top_button">Visualization</button>
+			<div class="horizontal_divider"></div>
+			<button class="box button top_button">SAE Description</button>
+		</div>
+	</div>
+
+	<!-- Visualization Row -->
+	<div id='visualizations' class='box space_bottom centered_div'>
+		<p id='main_title' class='box_title'> Title Goes Here </p>
+		<i class="far fa-question-circle" title='Clicking on counties will allow users to compare estimations.'></i> 
+
+		<div id="map_div">	  
+			<select id="inds">
+		        <option value="SAE1" selected="selected">SEA1</option>
+		        <option value="SAE2">SEA2</option>
+		    </select>
+		</div>
+
+		<hr id="reset_hr" class="hidden">
+		<div id="reset" class="center_button_div hidden">
+			<button class="box button reset_button" onclick="resetVisual();"> Reset</button>	
+		</div>
+  	</div>
+
+  	<!-- Tooltip for the visualization -->
+	<div id="main_tooltip" class="tooltip hidden">
+		<p><strong>County: </strong><span id="value0"></span></p>
+		<p><strong>Uninsured Rate: </strong> <span id="value"></span></p>
+		<p><strong>95% C.I: </strong> <span id="value2"></span></p>
+	</div>
+
+	<!-- Datatable Row -->
+	<div id='datatable' class='box centered_div'>
+		<p id='second_title' class='box_title'> Second Title Will Go Here </p>
+		<table id="table_one" class="display"></table>
+	</div> 
+
+
+<!-- Javascript for Page -->
+ <script type="text/javascript">
+
+
+// ----- Step 1: Variables and Projection
+var width = 900
+    height = 550
+    duration = 500;
+
+var comparison_graphic_width = 130
+    comparison_graphic_height = 30
+	comparison_left = 600
+    comparison_down = 100
+	legend_left = 450
+    legend_down = 390;
+
+var colors = ['', '#f9fbfd', '#bed3ea', '#75a0d1', '#4882c3', '#2a527f']
+var stroke_color = '#2a527f'
+var select_color = 'black'
+
+var data_dict = {}
+var selected_sae = document.getElementById("inds").options[document.getElementById("inds").selectedIndex].value;
+
+// projection for the map. Alter these numbers until the map comes into view.
+var projection = d3.geoAlbers().rotate([84.8, 0, 0]);
 
 var path = d3.geoPath()
     .projection(projection);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#map_div").append("svg")
+    .attr("id", "main_svg")
     .attr("width", width)
     .attr("height", height);
-	
-var color = d3.scaleOrdinal(d3.schemeCategory10).domain(d3.range(0, 9));
+// End Step 1 
 
-// Soom in to the right state
+
+
+// ----- Step 2: Zoom in to the right place
 d3.json("https://raw.githubusercontent.com/kaseyriver11/maps/master/us.json",function(json){
-	var states = topojson.feature(json, json.objects.states),
-        state = states.features.filter(function(d) { return d.id === 39; })[0];
-	
+	ht=500
+  	var states = topojson.feature(json, json.objects.states)
+  	// 39 is the fips code for OHIO
+  	state = states.features.filter(function(d) { return d.id === 39; })[0];
 	projection
 		.scale(1)
 		.translate([0, 0]);
 
 	var b = path.bounds(state),
-		s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
-		t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
-
+		s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / ht),
+		t = [(width - s * (b[1][0] + b[0][0])) / 2, (ht - s * (b[1][1] + b[0][1])) / 2];
+  	// ON NEW VISUALIZATION: print T and then replace second value in translate below to move over until graphic is in view. 
 	projection
 		.scale(s)
-		.translate(t);
+		.translate([0, 450]);
+});
+// End Step 2
 
-    });
-	
-var div = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("display", "none");
 
-function mouseover() {
-  div.style("display", "inline");
-}
-
-function mousemove() {
-  div
-      .text(d3.event.pageX + ", " + d3.event.pageY)
-      .style("left", (d3.event.pageX - 34) + "px")
-      .style("top", (d3.event.pageY - 12) + "px");
-};
-	
+// 	The Graph Projection 
 // https://raw.githubusercontent.com/deldersveld/topojson/master/countries/united-states/us-albers-counties.json
-d3.json("https://raw.githubusercontent.com/kaseyriver11/maps/master/us3.json",function(json){
-	var hi = topojson.feature(json, json.objects.collection).features.filter(function(d) { return d.properties.state_fips == 39; });
+d3.json("https://raw.githubusercontent.com/kaseyriver11/maps/master/us_all.json",function(json){
+	
+	// ON NEW VISUALIZATION: Change function to match new state, or region
+	var map_data = topojson.feature(json, json.objects.collection).features.filter(function(d) { return d.properties.state_fips == 39; });
+  	initiate_table(make_table_data(map_data, selected_sae))
+  
+  	var lowest_mid = d3.min(map_data, function(d) {return d.properties[selected_sae]['mid']; });
+  	var highest_mid = d3.max(map_data, function(d) { return d.properties[selected_sae]['mid']; });
+    
+	// The Estimate Selection 
+	d3.select('#inds')
+	.on("change", function () {
+		// Remake the custom visual
+	  	selected_sae = document.getElementById("inds").options[document.getElementById("inds").selectedIndex].value;
+	  	remakeVisual(map_data)
+	  	// Update the path colors
+	  	d3.selectAll("path")
+	    	.transition()
+	      		.attr("name", function(d) { return d.properties.name})
+	      		.style("stroke",stroke_color)
+	      		.style("fill", function(d) { 
+	      			return d3.select(this).style("opacity") == .9 ? '#7f2d2a' : colors[d.properties[selected_sae]['category']]})
+	    	.duration(duration*2.5);
+	});
+
+    // ----- Add the Actual Map Elements
 	svg.selectAll("path")
-		.data(hi)
+		.data(map_data)
 		.enter()
 		.append("path")
 		.attr("d", path)
 		.attr("name", function(d) { return d.properties.name})
-		.attr("color", function(d) { return color(d.properties.Value)})
-		.style("stroke","white")
-		.style("fill", function(d) { return color(d.properties.Value)})
-		.on("mouseover", function(d) {
-			d3.select(this).attr("r", 10).style("opacity", .3)
-			div.style("display", "inline")})
-		.on("mouseout", function(d) {
-			d3.select(this).attr("r", 10).style("opacity", 1)})
-	.on("mousemove", function(d) {
-		div
-		 .attr('id', 'fix')
-		 .text("Some Text")
-		  .style("left", (d3.event.pageX - 34) + "px")
-		  .style("top", (d3.event.pageY - 12) + "px");
-	})
+		.style("stroke", stroke_color)
+		.style("fill", function(d) { return colors[d.properties[selected_sae]['category']]})
+		
+    .on("mousemove", mousemove)
+		.on("mouseout", function() { d3.select("#main_tooltip").classed("hidden", true); })
+
+    .on("click", function(d) {
+    	var current_opacity = d3.select(this).style("opacity")
+
+      	// Change color and opacity, or change them back to normal
+      	d3.select(this)
+        	.style("opacity", function() { if(current_opacity == .9) { return 1 } else { return .9 }}) 
+        	.style("fill", function() { if(current_opacity == 1) { return "#7f2d2a" } else { return colors[d.properties[selected_sae]['category']] }}) 
+
+      	// If selection ID is not in data_dict, add the element
+      	if (!(d.properties.fips in data_dict)){
+      		data_dict[d.properties.fips] = d
+        	low_95 = find_low(data_dict)
+        	high_95 = find_high(data_dict)
+
+        	fix_text(low_95, high_95, "add")
+        	addElement(d, low_95, high_95, lowest_mid, highest_mid)
+        	updateElements(low_95, high_95, lowest_mid, highest_mid, map_data)
+        // Else remove the element and update the rest. 
+        } else {
+        	delete data_dict[d.properties.fips]
+          	removeElement()
+
+          	// If there is anything left in data_dict, update visual
+			if(Object.keys(data_dict).length > 0){
+            	low_95 = find_low(data_dict)
+            	high_95 = find_high(data_dict)
+          		updateElements(low_95, high_95, lowest_mid, highest_mid, map_data)
+          	}
+        	fix_text(low_95, high_95, "remove")
+        }
+    })
+
+    // ----- THE LEGEND
+    // ON NEW VISUALIZATION: Update the legend values accordingly 
+    var legend_data = ['(0,2)', '(2,4)', '(4,6)', '(6,8)', '(8,10)']
+
+    var legend = d3.select('svg').append("svg")
+    	.attr('x', legend_left + 'px')
+    	.attr('y', legend_down + 'px')
+    	.selectAll("svg")
+    	.data(legend_data)
+    	.enter().append('g')
+      		.attr('class', 'legend')
+      		.attr('transform', function(d, i) {
+      			var height = 25;
+		        var x = 0;
+		        var y = 0 + i * height;
+		        return 'translate(' + x + ',' + y + ')';});
+	legend.append('rect')
+		.attr('width', 20)
+		.attr('height', 20)
+		.style('fill', function(d, i) {return colors[i + 1]})
+		.style('stroke', 'black');
+	legend.append('text')
+		.attr('x', 25)
+		.attr('y', 14)
+		.text(function(d,i) { return d; });
+
+	// ----- COMPARISON VISUALIZATION
+	svg.append("svg")
+		.attr("width", width)
+		.attr("height", height)
+		.attr("id", "comparisons")
+
+	var comp = svg.select('#comparisons')
+	comp.append("text")
+		.attr("x", comparison_left - 3)
+		.attr("y", comparison_down)
+		.attr('id', 'left_text')
+		.text('')
+	comp.append("text")
+		.attr("x", comparison_left + comparison_graphic_width - 3)
+		.attr("y", comparison_down)
+		.attr('id', 'right_text')
+		.text('')
 });
 
+// ----- FUNCTIONS
+function fix_text(v_min, v_max, update_type='add'){
+	if (update_type == "remove" & Object.keys(data_dict).length == 0) {
+		d3.selectAll('#left_text').transition()
+	    	.style("opacity", 0)
+	  		.duration(duration);
+		d3.selectAll('#right_text').transition()
+	    	.style("opacity", 0)
+	  		.duration(duration);
+	} else {
+		d3.selectAll('#left_text').style("opacity", .5)
+		d3.selectAll('#right_text').style("opacity", .5)
+		d3.selectAll('#left_text').transition()
+	    	.text(Math.round(v_min,2))
+	    	.style("opacity", 1)
+	  		.duration(duration);
+	  	d3.selectAll('#right_text').transition()
+	    	.text(Math.round(v_max,2))
+	    	.style("opacity", 1)
+	  		.duration(duration);
+	}
+}
+
+function addElement(d, low_95, high_95, lowest_mid, highest_mid){
+	var value = d.properties.fips
+
+	var scale = d3.scaleLinear()
+		.domain([low_95, high_95])
+		.range([0 , comparison_graphic_width])
+
+	var colorscale = d3.scaleLinear()
+		.domain([lowest_mid, highest_mid])
+		.range([colors[1], colors[4]])
+
+	var len = Object.keys(data_dict).length;
+
+	var single_data = [data_dict[value]];
+
+	d3.select('#comparisons').selectAll('div')
+		.data(single_data)
+		.enter().append('svg')
+			.attr('x', comparison_left)
+	  		.attr('y', comparison_down + (len - 1) * 30)
+	   		.attr('width', 2)
+	  		.attr('height', 40)
+	  		.attr('id', 'a' + value)
+	    .on('mousemove', mousemove)
+	    .on('mouseout', function() { d3.select('#main_tooltip').classed('hidden', true); })
+	    .on('click', function(d) {
+	    // If ID is in data_dict, remove from visual
+	    delete data_dict[d.properties.fips]
+	    removeElement()
+	    
+	    if(Object.keys(data_dict).length > 0){
+	        low_95 = find_low(data_dict)
+	        high_95 = find_high(data_dict)
+	        updateElements(low_95, high_95, map_data=map_data)
+	    }
+	    fix_text(low_95, high_95, 'remove')
+	    
+	    // Update on graphic 
+	    svg.selectAll('path').filter( function(d) { return data_dict[d.properties.fips] == undefined }).transition()
+			.style('stroke', stroke_color)
+			.style('fill', function(d) { return colors[d.properties[selected_sae]['category']]})
+			.style('opacity', 1)
+			.duration(duration)
+	    })
+
+	var graphic = d3.selectAll("#a" + value)
+
+	graphic.append('line') // Middle Line
+		.attr('x1', 0)
+		.attr('y1', comparison_graphic_height/2)
+		.attr('x2', comparison_graphic_width)
+		.attr('y2', comparison_graphic_height/2)
+		.attr('stroke', 'black');
+	graphic.append('text')
+		.attr('x', comparison_graphic_width + 10)
+		.attr('y', comparison_graphic_height/2 )
+		.attr('dy', '.35em')
+		.text(d.properties.name);
+	graphic.append('line') // Left Vertical Line
+		.attr('x1', .5)
+		.attr('y1', 0 + 7)
+		.attr('x2', .5)
+		.attr('y2', comparison_graphic_height - 7 )
+		.attr('stroke', 'black');
+	graphic.append('line') // Right Vertical Line
+		.attr('x1', comparison_graphic_width)
+		.attr('y1', 0 + 7)
+		.attr('x2', comparison_graphic_width)
+		.attr('y2', comparison_graphic_height - 7)
+		.attr('stroke', 'black');
+	graphic.append('circle') // Middle Vertical Line
+		.attr('cx', comparison_graphic_width/2)
+		.attr('cy', comparison_graphic_height/2)
+		.attr('opacity', .9)
+		.attr('fill', 'black')
+		.attr('r', 2);
+	graphic.append('rect')   // Rectangle
+		.attr('x', function(d) { return scale(d.properties[selected_sae]['low']) })
+		.attr('y', function(d) { return comparison_graphic_height/3 })
+		.attr('width', function(d) {return scale(d.properties[selected_sae]['high']-d.properties[selected_sae]['low'] + low_95) })
+		.attr('height', function(d) { return comparison_graphic_height/3 })
+		.attr('id', 'comparison_rectangles')
+		.attr('opacity', .75)
+		.attr('fill', function(d) {return d.properties.fips == -1 ? select_color : colorscale(d.properties[selected_sae]['mid']) })
+	graphic.append('circle') // Circle
+		.attr('cx', function(d) { return scale(d.properties[selected_sae]['mid']) })
+		.attr('cy', function(d) { return comparison_graphic_height/2 })
+		.attr('stroke-width', 1)
+		.attr('stroke', 'black')
+		.attr('stroke-opacity', .5)
+		.attr('fill', function(d) {return d.properties.fips == -1 ? select_color : colorscale(d.properties[selected_sae]['mid']) })
+		.attr('id', 'comparison_circles')
+		.attr('r', function(d) { return comparison_graphic_height/3.75 * .95});
+	graphic.transition()
+		.attr("width", 240)
+		.duration(500)
+}
+
+function removeElement(){
+	// Delete the Corresponding Visual
+	d3.selectAll('#comparisons').selectAll('svg')
+		.filter( function(d) { return data_dict[d.properties.fips] == undefined }).transition()
+			.attr('width', 0)
+			.duration(duration)
+		.remove()
+	// Move the remaining visuals up
+	d3.selectAll('#comparisons').selectAll('svg')
+		.filter( function(d) { return data_dict[d.properties.fips] != undefined }).transition()
+			.attr('y', function(d,i) { return 100 + i * comparison_graphic_height })
+			.attr('width', 240)
+			.duration(duration);
+}
+
+
+function updateElements(low_95, high_95, lowest_mid, highest_mid, map_data){
+	t = state_average(map_data)
+	// if average does not exist and there are 1+ county is selected
+	if (data_dict[t.properties.fips] == undefined & Object.keys(data_dict).length > 0){
+		data_dict[t.properties.fips] = t
+		addElement(t, low_95, high_95, lowest_mid, highest_mid)
+	} else if (data_dict[t.properties.fips] != undefined & Object.keys(data_dict).length < 2) {
+		delete data_dict[t.properties.fips]
+		removeElement()
+	}
+
+	var scale = d3.scaleLinear()
+		.domain([low_95, high_95])
+		.range([0 , 0 + comparison_graphic_width])
+	
+	// Move the circles and rectangles based on new scale
+	d3.selectAll('#comparisons').selectAll('svg').selectAll("#comparison_circles").transition()
+	  	.attr("cx", function(d) { return scale(d.properties[selected_sae]['mid']) })
+	  	.attr("cy", comparison_graphic_height/2)
+	  	.duration(duration);
+	d3.selectAll('#comparisons').selectAll('svg').selectAll("#comparison_rectangles").transition()
+	    .attr("x", function(d) { return scale(d.properties[selected_sae]['low']) })
+	    .attr("width", function(d) { return scale(d.properties[selected_sae]['high']-d.properties[selected_sae]['low'] + low_95) })
+		.duration(duration);
+
+	// Re-Order the remaining visuals
+	var result = Object.keys(data_dict).sort(function(a,b) {
+		return data_dict[b].properties[selected_sae]['mid'] - data_dict[a].properties[selected_sae]['mid']
+	})
+
+	d3.selectAll('#comparisons').selectAll('svg')
+		.filter(function(d) { return data_dict[d.properties.fips] != undefined }).transition()
+	  		.attr('y', function(d,i) { return 100 + result.indexOf(d.properties.fips + '') * comparison_graphic_height })
+	  		.attr("width", 240)
+			.duration(duration)
+	// Fix Height of the container
+	d3.selectAll("#main_svg")
+		.attr("height", function() { return Object.keys(data_dict).length > 13 ? Object.keys(data_dict).length * 20 + height : height })
+	d3.selectAll("#comparisons")
+		.attr("height", function() { return Object.keys(data_dict).length > 13 ? Object.keys(data_dict).length * 20 + height : height })
+	d3.selectAll("#comparisons")
+		.attr("height", function() { return Object.keys(data_dict).length > 13 ? Object.keys(data_dict).length * 20 + height : height })
+
+	// Update the table at the bottom
+	use_data = Object.keys(data_dict).length > 2 ? data_dict : map_data
+	df = make_table_data(use_data)
+	var datatable = $('#table_one').DataTable();
+		datatable.clear();
+		datatable.rows.add(df);
+		datatable.draw();
+
+	// Hide/Unhide Reset Button
+	if (Object.keys(data_dict).length > 1){
+		d3.selectAll("#reset_hr")
+			.classed("hidden", false);
+		d3.selectAll("#reset")
+			.classed("hidden", false);
+	} else {
+		d3.selectAll("#reset_hr")
+			.classed("hidden", true);
+		d3.selectAll("#reset")
+			.classed("hidden", true);
+	}
+}
+
+function remakeVisual(map_data){
+  // Remove the old visual
+	d3.selectAll('#comparisons').selectAll('svg')
+		.remove()
+	delete data_dict['-1']
+	
+	// Generate a new visual for each item in data_dict
+	if(Object.keys(data_dict).length > 0){
+		low_95 = find_low(data_dict)
+		high_95 = find_high(data_dict)
+		lowest_mid = d3.min(map_data, function(d) { return d.properties[selected_sae]['mid']; });
+		highest_mid = d3.max(map_data, function(d) { return d.properties[selected_sae]['mid']; });
+	// Generate new
+	fix_text(low_95, high_95, "add");
+	for(item in data_dict){
+	  	addElement(data_dict[item], low_95, high_95, lowest_mid, highest_mid)
+	}
+	updateElements(low_95, high_95, lowest_mid, highest_mid, map_data=map_data)
+	}
+}
+
+function resetVisual(){
+	// Remove the visual
+	d3.selectAll('#comparisons').selectAll('svg')
+		.remove()
+	// Clear the data
+	data_dict = {}
+	// Remove Text
+	fix_text('', '', update_type="remove")
+	// Update the opacity back to 1
+	d3.selectAll("path")
+		.transition()
+	  		.attr("name", function(d) { return d.properties.name})
+	  		.style("stroke",stroke_color)
+	  		.style("opacity", 1)
+		.duration(duration*2.5);
+	// Reset the colors
+	d3.selectAll("path")
+		.transition()
+			.style("fill", function(d) {return colors[d.properties[selected_sae]['category']]})
+		.duration(duration*2);
+	// Hide the Reset button
+	d3.selectAll("#reset_hr")
+		.classed("hidden", true);
+	d3.selectAll("#reset")
+		.classed("hidden", true);
+
+}
+
+function find_low(data_dict){
+  return data_dict[Object.keys(data_dict).reduce((a,b) => data_dict[a].properties[selected_sae]['low'] < data_dict[b].properties[selected_sae]['low'] ? a : b)].properties[selected_sae]['low'] * .9
+}
+function find_high(data_dict){
+  return data_dict[Object.keys(data_dict).reduce((a,b) => data_dict[a].properties[selected_sae]['high'] > data_dict[b].properties[selected_sae]['high'] ? a : b)].properties[selected_sae]['high'] * 1.1
+}
+
+function mousemove(d) {
+      d3.select("#main_tooltip")
+        .style("left", (d3.event.clientX) + "px")
+        .style("top", (d3.event.pageY + 5) + "px")
+        .select("#value")
+        .text(d.properties[selected_sae]['mid'] + "%")
+      d3.select("#main_tooltip")
+        .select("#value2")
+        .text(d.properties['fips'] == -1 ? '' : "(" + d.properties[selected_sae]['low'] + "%, " + d.properties[selected_sae]['high'] + "%)")
+      d3.select("#main_tooltip")
+        .select("#value0")
+        .text(d.properties.name);
+      d3.select("#main_tooltip").classed("hidden", false);
+}
+
+function initiate_table(data) {
+
+	$(document).ready(function() {
+		var table = $('#table_one').DataTable( {
+			"bLengthChange": false, // Remove show entires option.
+			//deferRender:    true,
+	        "scrollY":        "200px",
+	        "scrollCollapse": true,
+	        "paging": false,
+	        dom: 'Bftip',
+			buttons: [
+	            {extend: 'copyHtml5', className: 'button datatable_button'},
+	            {extend: 'excelHtml5', className: 'button datatable_button'},
+	            {extend: 'csvHtml5', className: 'button datatable_button'},
+	            {extend: 'pdfHtml5', className: 'button datatable_button'}
+	        ],
+
+	        data: data,
+	        columns: [
+	            { title: "Name" },
+	            { title: "Mid" },
+	            { title: "Low" },
+	            { title: "High" }
+	        ]
+	    	} );
+	} );
+
+}
+
+function make_table_data(data){
+	df = []
+	for(item in data){
+  		item = data[item]
+	  	df.push([
+	  		item.properties.name,
+	  		item.properties[selected_sae]['mid'],
+	  		item.properties[selected_sae]['low'],
+	  		item.properties[selected_sae]['high']])
+  	}
+  	return df
+}
+
+function state_average(map_data){
+	t = {}
+	avg = d3.format(".2s")(d3.mean(Object.keys(data_dict), function(d) {return data_dict[d].properties[selected_sae]['mid']}))
+	t['properties'] = {}
+	t['properties']['fips'] = '-1'
+	t['properties'][selected_sae] = {}
+	t['properties'][selected_sae]['mid'] = d3.format(".2s")(d3.mean(Object.keys(map_data), function(d) {
+		return map_data[d].properties[selected_sae]['mid']}))
+	t['properties'][selected_sae]['low'] = d3.format(".2s")(d3.mean(Object.keys(map_data), function(d) {
+		return map_data[d].properties[selected_sae]['mid']}))
+	t['properties'][selected_sae]['high'] = d3.format(".2s")(d3.mean(Object.keys(map_data), function(d) {
+		return map_data[d].properties[selected_sae]['mid']}))
+	t['properties']['name'] = '- State Average -'
+	return t
+}
+
+
+
+
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
